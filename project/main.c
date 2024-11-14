@@ -2,6 +2,8 @@
 #include "libTimer.h"
 #include "buzzer.h"
 #include "led.h"
+#include "siren_c.c"
+#include "siren_s.s"
 
 
 
@@ -29,8 +31,11 @@ void wdt_init() {
 
 void main(void)
 {
+  P1DIR |= LEDS;
+  P1OUT &= ~LED_GREEN;
+  P1OUT &= ~LED_RED;
+  
   switch_init();
-  led_init();
   wdt_init();
   buzzer_init();
 
@@ -51,11 +56,9 @@ switch_interrupt_handler()
 
 
   if (p1val & SW1) {/* button up */
-    P1OUT &= ~LED_GREEN;
-    P1OUT &= ~LED_RED;
-    buttonDown = 0;
-  } else {/* button down */
     buttonDown = 1;
+  } else {/* button down */
+    buttonDown = 0;
   }
 }
 
@@ -81,19 +84,15 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts/sec */
 {
   secondCount++;
   
-  if(secondCount >=250){
+  if((secondCount >= 250) & (buttonDown = 1)){
     secondCount = 0;
 
     if(siren_state){
       siren_state = 0;
-      P1OUT &= ~LED_GREEN;
-      P1OUT |= ~LED_RED;
-      buzzer_set_period(0);
     }else if(!siren_state){
       siren_state = 1;
-      P1OUT |= ~LED_GREEN;
-      P1OUT &= ~LED_RED;
-      buzzer_set_period(0);
     }
+
+    siren_activate(siren_state);
   }
 }

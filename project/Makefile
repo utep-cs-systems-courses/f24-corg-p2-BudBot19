@@ -10,19 +10,29 @@ CC              = msp430-elf-gcc
 AS              = msp430-elf-as
 
 
-all: button.elf
+all: button.elf led.elf buzzer.elf
 
 
 #additional rules for files
-button.elf: ${COMMON_OBJECTS} ../lib/libTimer.a
+button.elf: ${COMMON_OBJECTS} buzzer.o ../lib/libTimer.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
 
-load: button.elf
+led.elf: ${COMMON_OBJECTS} buzzer.o ../lib/libTimer.a
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
+
+buzzer.elf: ${COMMON_OBJECTS} buzzer.o main.o ../lib/libTimer.a
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
+
+load: button.elf led.elf buzzer.elf
 	msp430loader.sh $^
 
 clean:
 	rm -f *.o *.elf
 
-main.o: led.h buzzer.h
+main.o: led.h buzzer.h siren_c.c siren_s.s
 
 buzzer.o: buzzer.h
+
+siren_c.o: buzzer.h led.h
+
+siren_s.o: buzzer.h led.h
