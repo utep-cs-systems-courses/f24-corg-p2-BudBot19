@@ -8,13 +8,13 @@ void siren_activate(int siren_state)
 
     P1OUT &= ~LED_GREEN;
 
-    P1OUT |= ~LED_RED;
+    P1OUT |= LED_RED;
 
     buzzer_set_period(1000);
 
   }else if(!siren_state){
 
-    P1OUT |= ~LED_GREEN;
+    P1OUT |= LED_GREEN;
 
     P1OUT &= ~LED_RED;
 

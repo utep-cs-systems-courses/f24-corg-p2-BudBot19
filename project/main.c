@@ -56,9 +56,12 @@ switch_interrupt_handler()
 
 
   if (p1val & SW1) {/* button up */
-    buttonDown = 1;
-  } else {/* button down */
     buttonDown = 0;
+    buzzer_set_period(0);
+    P1OUT &= ~LED_GREEN;
+    P1OUT &= ~LED_RED;
+  } else {/* button down */
+    buttonDown = 1;
   }
 }
 
@@ -84,7 +87,7 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts/sec */
 {
   secondCount++;
   
-  if((secondCount >= 250) & (buttonDown = 1)){
+  if((secondCount >= 250) & (buttonDown == 1)){
     secondCount = 0;
 
     if(siren_state){
