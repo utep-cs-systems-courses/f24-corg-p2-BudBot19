@@ -5,11 +5,6 @@
 
 
 
-#define LED_RED BIT0               // P1.0
-#define LED_GREEN BIT6             // P1.6
-#define LEDS (LED_RED | LED_GREEN)
-
-
 
 #define SW1 BIT3/* switch1 is p1.3 */
 #define SWITCHES SW1/* only 1 switch on this board */
@@ -57,9 +52,9 @@ switch_interrupt_handler()
 
   if (p1val & SW1) {/* button up */
     P1OUT &= ~LED_GREEN;
+    P1OUT &= ~LED_RED;
     buttonDown = 0;
   } else {/* button down */
-    P1OUT |= LED_GREEN;
     buttonDown = 1;
   }
 }
@@ -76,21 +71,29 @@ __interrupt_vec(PORT1_VECTOR) Port_1(){
 }
 
 
+int siren_state = 0; //determines the light and tone
+int secondCount = 0;
 
 void
 
 __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts/sec */
 
 {
-  static int blink_count = 0;
-  switch (blink_count) {
+  secondCount++;
+  
+  if(secondCount >=250){
+    secondCount = 0;
 
-  case 6:
-    blink_count = 0;
-    P1OUT |= LED_RED;
-    break;
-  default:
-    blink_count ++;
-    if (!buttonDown) P1OUT &= ~LED_RED; /* don't blink off if button is down */
+    if(siren_state){
+      siren_state = 0;
+      P1OUT &= ~LED_GREEN;
+      P1OUT |= ~LED_RED;
+      buzzer_set_period(0);
+    }else if(!siren_state){
+      siren_state = 1;
+      P1OUT |= ~LED_GREEN;
+      P1OUT &= ~LED_RED;
+      buzzer_set_period(0);
+    }
   }
 }
