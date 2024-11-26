@@ -3,21 +3,23 @@
 #include "buzzer.h"
 #include "led.h"
 #include "siren_c.c"
-#include "siren_s.s"
 
 
 
 
-#define SW1 BIT3/* switch1 is p1.3 */
-#define SWITCHES SW1/* only 1 switch on this board */
+#define SW1 BIT0 /* switch1 is p2.0 */
+#define SW2 BIT1
+#define SW3 BIT2
+#define SW4 BIT3
+#define SWITCHES (SW1 | SW2 | SW3 | SW4) 
 
 
 
 void switch_init() {
-  P1REN |= SWITCHES;/* enables resistors for switches */
-  P1IE |= SWITCHES;/* enable interrupts from switches */
-  P1OUT |= SWITCHES;/* pull-ups for switches */
-  P1DIR &= ~SWITCHES;/* set switches' bits for input */
+  P2REN |= SWITCHES;/* enables resistors */
+  P2IE |= SWITCHES;/* enable interrupts */
+  P2OUT |= SWITCHES;/* pull-ups for switches */
+  P2DIR &= ~SWITCHES;/* set switches' bits for input */
 
 }
 
@@ -32,7 +34,7 @@ void wdt_init() {
 void main(void)
 {
   P1DIR |= LEDS;
-  P1OUT &= ~LED_GREEN;
+  P1OUT &= ~LED_GREEN; //both leds start off
   P1OUT &= ~LED_RED;
   
   switch_init();
@@ -50,18 +52,25 @@ static int buttonDown;
 void
 switch_interrupt_handler()
 {
-  char p1val = P1IN;/* switch is in P1 */
-  P1IES |= (p1val & SWITCHES);/* if switch up, sense down */
-  P1IES &= (p1val | ~SWITCHES);/* if switch down, sense up */
+  char p2input = P2IN;/* switch is in P2 */
+  P2IES |= (p2input & SWITCHES);/* if switch up, sense down */
+  P2IES &= (p2input | ~SWITCHES);/* if switch down, sense up */
 
 
-  if (p1val & SW1) {/* button up */
+  if (~p2input & SW1) {/* button down */
+    buttonDown = 1;
+  } else if(~p2input & SW2){
+    buttonDown = 2; /* value is ready for clock interupt */
+  } else if(~p2input & SW3){
+    buttonDown = 3;
+  } else if(~p2input & SW4){
+    buttonDown = 4;
+  }
+  if((~p2input & SW1) & (~p2input & SW4)){
     buttonDown = 0;
     buzzer_set_period(0);
     P1OUT &= ~LED_GREEN;
     P1OUT &= ~LED_RED;
-  } else {/* button down */
-    buttonDown = 1;
   }
 }
 
@@ -69,28 +78,45 @@ switch_interrupt_handler()
 
 void
 
-__interrupt_vec(PORT1_VECTOR) Port_1(){
-  if (P1IFG & SWITCHES) {      /* did a button cause this interrupt? */
-    P1IFG &= ~SWITCHES;      /* clear pending sw interrupts */
-    switch_interrupt_handler();/* single handler for all switches */
+__interrupt_vec(PORT2_VECTOR) Port_2(){
+  if (P2IFG & SWITCHES) {      /* did a button cause this interrupt? */
+    P2IFG &= ~SWITCHES;    
+    switch_interrupt_handler();
   }
 }
 
 
-int siren_state = 0; //determines the light and tone
+int siren_state = 0; /* determines the light and tone */
 int secondCount = 0;
 
 void
 
-__interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts/sec */
+__interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts == sec */
 
 {
   secondCount++;
   
-  if((secondCount >= 250) & (buttonDown == 1)){
+  int siren_rate = 0;
+  switch(buttonDown) {
+
+  case '1':
+    siren_rate = 250;
+
+  case '2':
+    siren_rate = 125;
+
+  case '3':
+    siren_rate = 50;
+
+  case '4':
+    siren_rate = 6;
+
+  }
+  
+  if((secondCount >= 250) & (buttonDown > 0)){ /* button is down and second has passed */
     secondCount = 0;
 
-    if(siren_state){
+    if(siren_state){ /* alternates state of siren */
       siren_state = 0;
     }else if(!siren_state){
       siren_state = 1;

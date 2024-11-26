@@ -29,7 +29,7 @@ load: button.elf led.elf buzzer.elf
 clean:
 	rm -f *.o *.elf
 
-main.o: led.h buzzer.h siren_c.c siren_s.s
+main.o: led.h buzzer.h siren_c.c
 
 buzzer.o: buzzer.h
 
