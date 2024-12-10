@@ -14,16 +14,16 @@ all: button.elf led.elf buzzer.elf draw.elf
 
 
 #additional rules for files
-button.elf: ${COMMON_OBJECTS} main.o buzzer.o draw_face1.o ../lib/libTimer.a
+button.elf: ${COMMON_OBJECTS} buzzer.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
 
-led.elf: ${COMMON_OBJECTS} buzzer.o ../lib/libTimer.a
+led.elf: ${COMMON_OBJECTS} buzzer.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ 
+
+buzzer.elf: ${COMMON_OBJECTS} buzzer.o main.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
 
-buzzer.elf: ${COMMON_OBJECTS} buzzer.o main.o ../lib/libTimer.a
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
-
-draw.elf: ${COMMON_OBJECTS} buzzer.o main.o wdt_handler.o ../lib/libTimer.a
+draw.elf: ${COMMON_OBJECTS} buzzer.o main.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ 
 
 load: button.elf led.elf buzzer.elf draw.elf

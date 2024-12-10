@@ -1,6 +1,5 @@
 	.text
 	.balign 2		;align to an even address
-	ls
 	.global	WDT
 ;;;  WDT uses interrupt #11
 ;;;  flags: "a"=allocatable, "x"=executable

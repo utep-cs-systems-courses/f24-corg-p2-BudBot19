@@ -1,7 +1,7 @@
 /** \file lcddraw.h
  *  \brief Adapted from RobG's EduKit
  */
-
+#include <sys/types.h>
 #ifndef lcddraw_included
 #define lcddraw_included
 
