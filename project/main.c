@@ -3,7 +3,7 @@
 #include "buzzer.h"
 #include "led.h"
 #include "siren_c.c"
-
+#include "draw.h"
 
 
 
@@ -57,16 +57,16 @@ switch_interrupt_handler()
   P2IES &= (p2input | ~SWITCHES);/* if switch down, sense up */
 
 
-  if (~p2input & SW1) {/* button down */
+  if (!(p2input & SW1)) {/* button down */
     buttonDown = 1;
-  } else if(~p2input & SW2){
-    buttonDown = 2; /* value is ready for clock interupt */
-  } else if(~p2input & SW3){
+  } else if(!(p2input & SW2)){
+    buttonDown = 2; 
+  } else if(!(p2input & SW3)){
     buttonDown = 3;
-  } else if(~p2input & SW4){
+  } else if(!(p2input & SW4)){
     buttonDown = 4;
   }
-  if((~p2input & SW1) & (~p2input & SW4)){
+  if(!(p2input & SW1) && !(p2input & SW4)){
     buttonDown = 0;
     buzzer_set_period(0);
     P1OUT &= ~LED_GREEN;
@@ -99,21 +99,24 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts == sec */
   int siren_rate = 0;
   switch(buttonDown) {
 
-  case '1':
+  case 1:
     siren_rate = 250;
+    break;
 
-  case '2':
+  case 2:
     siren_rate = 125;
+    break;
 
-  case '3':
+  case 3:
     siren_rate = 50;
+    break;
 
-  case '4':
+  case 4:
     siren_rate = 6;
-
+    break;
   }
   
-  if((secondCount >= 250) & (buttonDown > 0)){ /* button is down and second has passed */
+  if((secondCount >= siren_rate) & (buttonDown > 0)){ /* button is down and second has passed */
     secondCount = 0;
 
     if(siren_state){ /* alternates state of siren */
@@ -124,4 +127,8 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts == sec */
 
     siren_activate(siren_state);
   }
+
+  if(buttonDown == 1)
+    draw_face1();
+  
 }
