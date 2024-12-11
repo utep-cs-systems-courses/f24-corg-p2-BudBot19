@@ -14,16 +14,16 @@ all: button.elf led.elf buzzer.elf draw.elf
 
 
 #additional rules for files
-button.elf: ${COMMON_OBJECTS} buzzer.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
+button.elf: ${COMMON_OBJECTS} buzzer.o draw_face1.o draw_face234.o ../lib/libTimer.a ../lib/libLcd.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
 
-led.elf: ${COMMON_OBJECTS} buzzer.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
+led.elf: ${COMMON_OBJECTS} buzzer.o draw_face1.o draw_face234.o ../lib/libTimer.a ../lib/libLcd.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ 
 
-buzzer.elf: ${COMMON_OBJECTS} buzzer.o main.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
+buzzer.elf: ${COMMON_OBJECTS} buzzer.o main.o draw_face1.o draw_face234.o ../lib/libTimer.a ../lib/libLcd.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
 
-draw.elf: ${COMMON_OBJECTS} buzzer.o main.o draw_face1.o ../lib/libTimer.a ../lib/libLcd.a
+draw.elf: ${COMMON_OBJECTS} buzzer.o main.o draw_face1.o draw_face234.o ../lib/libTimer.a ../lib/libLcd.a
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ 
 
 load: button.elf led.elf buzzer.elf draw.elf
@@ -41,3 +41,5 @@ siren_c.o: buzzer.h led.h
 siren_s.o: buzzer.h led.h
 
 draw_face1.o: draw.h
+
+draw_face234.o: draw.h

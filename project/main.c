@@ -18,6 +18,8 @@
 static int buttonDown = 0;
 
 void draw_init() {
+  lcd_init();
+  
   Pos positions[] = {
     {10,10}, //upper left
     {10, screenHeight-10}, //lower left
@@ -57,11 +59,7 @@ void main(void)
   buzzer_init();
   draw_init();
 
-  if(buttonDown == 1)
-    draw_face1();
-
-  
-  or_sr(0x18);  // CPU off, GIE on
+  or_sr(0x18);    // CPU off, GIE on
 }
 
 
@@ -105,6 +103,7 @@ __interrupt_vec(PORT2_VECTOR) Port_2(){
 
 int siren_state = 0; /* determines the light and tone */
 int secondCount = 0;
+int last_button = 0; //saves buttonDown for comparison
 
 void
 
@@ -133,9 +132,9 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts == sec */
     break;
   }
   
-  if((secondCount >= siren_rate) & (buttonDown > 0)){ /* button is down and second has passed */
+  if((secondCount >= siren_rate) & (buttonDown > 0)){ /* button is down and time has passed */
     secondCount = 0;
-
+    
     if(siren_state){ /* alternates state of siren */
       siren_state = 0;
     }else if(!siren_state){
@@ -143,6 +142,14 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts == sec */
     }
 
     siren_activate(siren_state);
+
+    if(last_button != buttonDown){
+      if(buttonDown == 1)
+	draw_face1();
+      else
+	draw_faces(buttonDown);
+    }
+    last_button = buttonDown;
   }
   
 }

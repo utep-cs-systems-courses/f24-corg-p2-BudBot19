@@ -20,3 +20,5 @@ char current_position;
 
 void draw_face1();
 
+void draw_faces();
+
