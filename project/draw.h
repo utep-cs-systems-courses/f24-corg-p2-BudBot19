@@ -14,11 +14,9 @@ Pos;
 Pos positions[5];
 #define NUM_POSITIONS 5
 
-unsigned short sqColors[4];
-#define NUM_SQCOLORS 4
 #define BG_COLOR COLOR_BLACK
 
-char current_position, current_color;
+char current_position;
 
 void draw_face1();
 

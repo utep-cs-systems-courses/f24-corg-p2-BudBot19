@@ -4,7 +4,8 @@
 #include "led.h"
 #include "siren_c.c"
 #include "draw.h"
-#include "lcddraw.h"
+#include <lcddraw.h>
+#include <lcdutils.h>
 
 
 #define SW1 BIT0 /* switch1 is p2.0 */
@@ -14,6 +15,8 @@
 #define SWITCHES (SW1 | SW2 | SW3 | SW4) 
 
 
+static int buttonDown = 0;
+
 void draw_init() {
   Pos positions[] = {
     {10,10}, //upper left
@@ -22,9 +25,8 @@ void draw_init() {
     {screenWidth - 10, 10}, //upper right
     {screenWidth/2, screenHeight/2} //center
   };
-  unsigned short sqColors[] = {COLOR_RED, COLOR_GREEN, COLOR_ORANGE, COLOR_BLUE};
-  char current_position = 0, current_color = 0;
-  
+  char current_position = 0;
+  clearScreen(COLOR_BLUE);
 }
 
 
@@ -55,12 +57,13 @@ void main(void)
   buzzer_init();
   draw_init();
 
+  if(buttonDown == 1)
+    draw_face1();
 
+  
   or_sr(0x18);  // CPU off, GIE on
 }
 
-
-static int buttonDown;
 
 
 void
@@ -73,7 +76,6 @@ switch_interrupt_handler()
 
   if (!(p2input & SW1)) {/* button down */
     buttonDown = 1;
-    draw_face1();
   } else if(!(p2input & SW2)){
     buttonDown = 2; 
   } else if(!(p2input & SW3)){

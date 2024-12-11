@@ -5,9 +5,7 @@
 #include "draw.h"
 
 void draw_face1(){
-  clearScreen(BG_COLOR);
-
-  current_position = (screenHeight/2) - 40;
-  fillRectangle(current_position, current_position, 40, 40, COLOR_YELLOW);
+  current_position = (screenHeight/2) - 20;
+  fillRectangle(40, 40, 20, 20, COLOR_YELLOW);
   return;
 }
