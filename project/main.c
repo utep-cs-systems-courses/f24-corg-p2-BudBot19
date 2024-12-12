@@ -41,9 +41,9 @@ void switch_init() {
 }
 
 
-void wdt_init() {
-  configureClocks();/* setup master oscillator, CPU & peripheral clocks */
-  enableWDTInterrupts();/* enable periodic interrupt */
+void wdt_init() {       //prepares the clock and CPU, ready for interupts
+  configureClocks();
+  enableWDTInterrupts();
 }
 
 
@@ -51,7 +51,7 @@ void wdt_init() {
 void main(void)
 {
   P1DIR |= LEDS;
-  P1OUT &= ~LED_GREEN; //both leds start off
+  P1OUT &= ~LED_GREEN; /*both leds start off*/
   P1OUT &= ~LED_RED;
   
   switch_init();
@@ -59,7 +59,7 @@ void main(void)
   buzzer_init();
   draw_init();
 
-  or_sr(0x18);    // CPU off, GIE on
+  or_sr(0x18);    /* CPU off, GIE on */
 }
 
 
@@ -67,12 +67,12 @@ void main(void)
 void
 switch_interrupt_handler()
 {
-  char p2input = P2IN;/* switch is in P2 */
-  P2IES |= (p2input & SWITCHES);/* if switch up, sense down */
-  P2IES &= (p2input | ~SWITCHES);/* if switch down, sense up */
+  char p2input = P2IN; // switch is in P2
+  P2IES |= (p2input & SWITCHES); /* if switch up, sense down */
+  P2IES &= (p2input | ~SWITCHES); /* if switch down, sense up */
 
 
-  if (!(p2input & SW1)) {/* button down */
+  if (!(p2input & SW1)) { /* button down */
     buttonDown = 1;
   } else if(!(p2input & SW2)){
     buttonDown = 2; 
@@ -81,7 +81,7 @@ switch_interrupt_handler()
   } else if(!(p2input & SW4)){
     buttonDown = 4;
   }
-  if(!(p2input & SW1) && !(p2input & SW4)){
+  if(!(p2input & SW1) && !(p2input & SW4)){  /* doesn't work, needs buffer? */
     buttonDown = 0;
     buzzer_set_period(0);
     P1OUT &= ~LED_GREEN;
@@ -94,14 +94,14 @@ switch_interrupt_handler()
 void
 
 __interrupt_vec(PORT2_VECTOR) Port_2(){
-  if (P2IFG & SWITCHES) {      /* did a button cause this interrupt? */
-    P2IFG &= ~SWITCHES;    
-    switch_interrupt_handler();
+  if (P2IFG & SWITCHES) {      //senses if interupt was caused by button
+    P2IFG &= ~SWITCHES;    //resets the bits
+    switch_interrupt_handler(); //passes to proper handler
   }
 }
 
 
-int siren_state = 0; /* determines the light and tone */
+int siren_state = 0; // determines the light and tone
 int secondCount = 0;
 int last_button = 0; //saves buttonDown for comparison
 
@@ -143,13 +143,13 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts == sec */
 
     siren_activate(siren_state);
 
-    if(last_button != buttonDown){
+    if(last_button != buttonDown){ /* if a new button was pressed redraw screen */
       if(buttonDown == 1)
 	draw_face1();
       else
 	draw_faces(buttonDown);
     }
-    last_button = buttonDown;
+    last_button = buttonDown; /*stores button press for next interrupt */
   }
   
 }

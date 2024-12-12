@@ -4,20 +4,25 @@
 
 
 
-	.global siren_activate_s
+	.global siren_activate
 	.extern P1OUT
 
-siren_activate_s:
-	cmp #0, r12
+siren_activate:
+	sub #1, r1
+	mov r12, 0(r1)
+	cmp #0, 0(r1) //if siren_state is zero jmp to the else statement
 	jz second
-	and #~64, P1OUT
-	biz #0, P1OUT
+	and #~64, P1OUT //turns off red led
+	biz #0, P1OUT  //turns on green led
 	mov #1000, r12
 	call buzzer_set_period
-	pop r0
+	jmp done
 	
 second:	biz #64, P1OUT
 	and #~0, P1OUT
-	move #1200, r12
+	mov #1200, r12
 	call buzzer_set_period
-	pop r0
+	jmp done
+
+done: 	pop r0
+	
