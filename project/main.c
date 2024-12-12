@@ -15,7 +15,8 @@
 #define SWITCHES (SW1 | SW2 | SW3 | SW4) 
 
 
-static int buttonDown = 0;
+int buttonDown = 0;
+int last_button = 0;
 
 void draw_init() {
   lcd_init();
@@ -58,8 +59,17 @@ void main(void)
   wdt_init();
   buzzer_init();
   draw_init();
-
-  or_sr(0x18);    /* CPU off, GIE on */
+  or_sr(0x8); /*enables interrupts*/
+  
+  while(1){
+    if(last_button != buttonDown){ /* if a new button was pressed redraw screen */
+      if(buttonDown == 1)
+	draw_face1();
+      else
+	draw_faces(buttonDown);
+    }    
+    or_sr(0x10); /* CPU off */
+  }
 }
 
 
@@ -103,7 +113,6 @@ __interrupt_vec(PORT2_VECTOR) Port_2(){
 
 int siren_state = 0; // determines the light and tone
 int secondCount = 0;
-int last_button = 0; //saves buttonDown for comparison
 
 void
 
@@ -142,7 +151,7 @@ __interrupt_vec(WDT_VECTOR) WDT()/* 250 interrupts == sec */
     }
 
     siren_activate(siren_state);
-
+    
     if(last_button != buttonDown){ /* if a new button was pressed redraw screen */
       if(buttonDown == 1)
 	draw_face1();

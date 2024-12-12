@@ -1,4 +1,4 @@
-all: libLcd.a lcddemo.elf
+all: libLcd.a
 
 CPU             = msp430g2553
 CFLAGS          = -mmcu=${CPU} -Os -I../h 
@@ -20,10 +20,5 @@ install: libLcd.a
 	cp *.h ../h
 
 clean:
-	rm -f libLcd.a *.o *.elf
+	rm -f libLcd.a *.o
 
-lcddemo.elf: lcddemo.o libLcd.a 
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ -lTimer 
-
-load: lcddemo.elf
-	msp430loader.sh $^

@@ -215,7 +215,7 @@ void face4(int col_par, int row_par){
 
   current_row = row + 95;
   current_col = current_col - 5;
-  drawString5x7(current_col, current_row, "KABOOM!!!!!", COLOR_BLACK, COLOR_ORANGE_RED);
+  drawString8x12(current_col, current_row, "KABOOM!!!!!", COLOR_BLACK, COLOR_ORANGE_RED);
   return;
 }
 
