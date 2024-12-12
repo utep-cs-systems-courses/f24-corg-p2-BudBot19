@@ -22,3 +22,9 @@ void draw_face1();
 
 void draw_faces();
 
+void face2();
+
+void face3();
+
+void face4();
+
